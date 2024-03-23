@@ -1,5 +1,7 @@
 ﻿using etickets.Data.Enums;
+using etickets.Data.Static;
 using etickets.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace etickets.Data
 {
@@ -90,6 +92,45 @@ namespace etickets.Data
                     });
                     context.SaveChanges();
                 }
+                //Producers
+                if (!context.Producers.Any())
+                {
+                    context.Producers.AddRange(new List<Producer>()
+                    {
+                        new Producer()
+                        {
+                            FullName = "Producer 1",
+                            Bio = "This is the Bio of the first actor",
+                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-1.jpeg"
+
+                        },
+                        new Producer()
+                        {
+                            FullName = "Producer 2",
+                            Bio = "This is the Bio of the second actor",
+                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-2.jpeg"
+                        },
+                        new Producer()
+                        {
+                            FullName = "Producer 3",
+                            Bio = "This is the Bio of the second actor",
+                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-3.jpeg"
+                        },
+                        new Producer()
+                        {
+                            FullName = "Producer 4",
+                            Bio = "This is the Bio of the second actor",
+                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-4.jpeg"
+                        },
+                        new Producer()
+                        {
+                            FullName = "Producer 5",
+                            Bio = "This is the Bio of the second actor",
+                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-5.jpeg"
+                        }
+                    });
+                    context.SaveChanges();
+                }
                 //Movies
                 if (!context.Movies.Any())
                 {
@@ -170,45 +211,7 @@ namespace etickets.Data
                     });
                     context.SaveChanges();
                 }
-                //Producers
-                if (!context.Producers.Any())
-                {
-                    context.Producers.AddRange(new List<Producer>()
-                    {
-                        new Producer()
-                        {
-                            FullName = "Producer 1",
-                            Bio = "This is the Bio of the first actor",
-                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-1.jpeg"
 
-                        },
-                        new Producer()
-                        {
-                            FullName = "Producer 2",
-                            Bio = "This is the Bio of the second actor",
-                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-2.jpeg"
-                        },
-                        new Producer()
-                        {
-                            FullName = "Producer 3",
-                            Bio = "This is the Bio of the second actor",
-                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-3.jpeg"
-                        },
-                        new Producer()
-                        {
-                            FullName = "Producer 4",
-                            Bio = "This is the Bio of the second actor",
-                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-4.jpeg"
-                        },
-                        new Producer()
-                        {
-                            FullName = "Producer 5",
-                            Bio = "This is the Bio of the second actor",
-                            ProfilePictureURL = "http://dotnethow.net/images/producers/producer-5.jpeg"
-                        }
-                    });
-                    context.SaveChanges();
-                }
                 //Actors_Movies
                 if (!context.Actors_Movies.Any())
                 {
@@ -310,6 +313,52 @@ namespace etickets.Data
                     });
                     context.SaveChanges();
 
+                }
+            }
+        }
+
+        public static async Task SeedUsersandRoleAsync(IApplicationBuilder applicationBuilder)
+        {
+            using (var serviceScope = applicationBuilder.ApplicationServices.CreateScope())
+            {
+                var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                // Roles
+                if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
+                    await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
+                if (!await roleManager.RoleExistsAsync(UserRoles.User))
+                    await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+               
+                // Users
+                var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                string adminUserEmail = "admin@etickets.com";
+                var adminUser = await userManager.FindByEmailAsync(adminUserEmail);
+                if(adminUser == null)
+                {
+                    var newAdminUser = new ApplicationUser()
+                    {
+                        fullName = "Admin User",
+                        UserName = "admin",
+                        Email = adminUserEmail,
+                        EmailConfirmed = true
+                    };
+                    await userManager.CreateAsync(newAdminUser, "Coding@1234?");
+                    await userManager.AddToRoleAsync(newAdminUser, UserRoles.Admin);
+                }
+
+                string appUserEmail = "user@etickets.com";
+                var appUser = await userManager.FindByEmailAsync(appUserEmail);
+                if(appUser == null)
+                {
+                    var newAppUser = new ApplicationUser()
+                    {
+                        fullName = "App User",
+                        UserName = "app_user",
+                        Email = appUserEmail,
+                        EmailConfirmed = true
+                    };
+                    await userManager.CreateAsync(newAppUser, "Coding@1234?");
+                    await userManager.AddToRoleAsync(newAppUser, UserRoles.User);
                 }
             }
         }

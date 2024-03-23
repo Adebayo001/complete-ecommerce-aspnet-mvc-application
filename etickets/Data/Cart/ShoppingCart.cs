@@ -61,10 +61,8 @@ namespace etickets.Data.Cart
             }
             _context.SaveChanges();
         }
-        public List<ShoppingCartItem> GetShoppingCartItems()
-        {
-            return ShoppingCartItems ??= _context.ShoppingCartItems.Where(n => n.ShoppingCartId == ShoppingCartId).Include(n => n.Movie).ToList();
-        }
+        public List<ShoppingCartItem> GetShoppingCartItems() => ShoppingCartItems ?? (ShoppingCartItems = _context.ShoppingCartItems.Where(n => n.ShoppingCartId == ShoppingCartId).Include(n => n.Movie).ToList());
+        
         public double GetShoppingCartTotal() => _context.ShoppingCartItems.Where(n => n.ShoppingCartId == ShoppingCartId).Select(n => n.Movie.Price * n.Amount).Sum();
 
         public async Task ClearShoppingCartAsync()
